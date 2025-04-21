@@ -18,7 +18,6 @@ OneIncUserAPI is a .NET 8.0-based web API designed to manage users, roles, and t
 - **Swagger/OpenAPI**
 
 ## Project Structure
-## Project Structure
 
 - **Controllers**: Contains API controllers for managing users, roles, and user-role associations. These controllers define the endpoints and handle HTTP requests, delegating business logic to the Core layer.
 
