@@ -35,6 +35,3 @@ OneIncUserAPI is a .NET 8.0-based web API designed to manage users, roles, and t
     - `MemoryAppDB`: An in-memory database context implemented using `Entity Framework Core`. It manages the `DbSet` for entities like `AppUser`, `AppRole`, and `UserRole` and applies configurations during model creation.
 
 - **Program.cs**: Configures services, middleware, and the application pipeline. It sets up dependency injection for the Core components, including the repository and database context, and integrates Swagger for API documentation and testing.
-- **Controllers**: Contains API controllers for managing users, roles, and user-role associations.
-- **Core**: Includes core entities (`AppUser`, `AppRole`, `UserRole`) and the repository pattern implementation (`ApplicationRepository`).
-- **Program.cs**: Configures services, middleware, and the application pipeline.
