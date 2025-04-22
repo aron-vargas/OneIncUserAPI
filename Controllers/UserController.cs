@@ -27,11 +27,6 @@ public class UserController : ControllerBase
         Logger = logger;
     }
 
-    /// <summary>
-    /// Retrieves a user by their unique identifier.
-    /// </summary>
-    /// <param name="UserId">The unique identifier of the user.</param>
-    /// <returns>The <see cref="AppUser"/> entity if found; otherwise, null.</returns>
     [HttpGet("{UserId}")]
     public async Task<APIResult> GetOne(string UserId)
     {
@@ -75,10 +70,6 @@ public class UserController : ControllerBase
         return Result;
     }
 
-    /// <summary>
-    /// Retrieves all users in the system.
-    /// </summary>
-    /// <returns>A collection of <see cref="AppUser"/> entities.</returns>
     [HttpGet("all")]
     public async Task<APIResult> GetAll()
     {
@@ -122,11 +113,6 @@ public class UserController : ControllerBase
         return Result;
     }
 
-    /// <summary>
-    /// Adds a new user to the system.
-    /// </summary>
-    /// <param name="NewUser">The <see cref="AppUser"/> entity to add.</param>
-    /// <returns>The added <see cref="AppUser"/> entity.</returns>
     [HttpPost("add")]
     public async Task<APIResult> AddUser(AppUser NewUser)
     {
@@ -170,11 +156,6 @@ public class UserController : ControllerBase
         return Result;
     }
 
-    /// <summary>
-    /// Updates an existing user in the system.
-    /// </summary>
-    /// <param name="NewUser">The <see cref="AppUser"/> entity with updated information.</param>
-    /// <returns>The updated <see cref="AppUser"/> entity.</returns>
     [HttpPost("update")]
     public async Task<APIResult> UpdateUser(AppUser NewUser)
     {
@@ -218,11 +199,6 @@ public class UserController : ControllerBase
         return Result;
     }
 
-    /// <summary>
-    /// Deactivates a user by their unique identifier.
-    /// </summary>
-    /// <param name="UserId">The unique identifier of the user to deactivate.</param>
-    /// <returns>The deactivated <see cref="AppUser"/> entity if found; otherwise, null.</returns>
     [HttpDelete("{UserId}")]
     public async Task<APIResult> DeleteUser(string UserId)
     {

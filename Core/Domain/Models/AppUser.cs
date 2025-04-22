@@ -21,7 +21,6 @@ public class AppUser : EntityBase, IEntityBase
 
     /// <summary>
     /// Validates the entity before it is inserted into the database.
-    /// Sets default values for <see cref="CreatedOn"/>, <see cref="UpdateOn"/>, <see cref="CreatedBy"/>, <see cref="UpdatedBy"/>, and <see cref="IsActive"/>.
     /// </summary>
     public new bool ValidateInsert()
     {
@@ -38,7 +37,6 @@ public class AppUser : EntityBase, IEntityBase
 
     /// <summary>
     /// Validates the entity before it is updated in the database.
-    /// Ensures that <see cref="UpdateOn"/> and <see cref="UpdatedBy"/> are set, and sets default values for <see cref="CreatedOn"/> and <see cref="CreatedBy"/> if they are null.
     /// </summary>
     public new bool ValidateUpdate()
     { 
