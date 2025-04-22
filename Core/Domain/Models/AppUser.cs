@@ -53,7 +53,7 @@ public class AppUser : EntityBase, IEntityBase
     public void ValidateUser()
     {
         if (string.IsNullOrEmpty(Email) || !IsValidEmail(Email))
-            throw new ArgumentNullException("Invlid email address");
+            throw new ArgumentNullException("Invalid email address");
 
         if (string.IsNullOrEmpty(FirstName))
             throw new ArgumentNullException("FistName cannot be empty");

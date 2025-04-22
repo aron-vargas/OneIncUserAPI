@@ -36,26 +36,39 @@ public class UserController : ControllerBase
     public async Task<APIResult> GetOne(string UserId)
     {
         Logger.LogInformation($"Getting user with ID: {UserId}");
-        AppUser? User = await Repo.GetByIdAsync(UserId);
-
         APIResult Result = new APIResult();
-        if (User is null)
+
+        try
         {
+            AppUser? User = await Repo.GetByIdAsync(UserId);
+            if (User is null)
+            {
+                Result = new APIResult()
+                {
+                    Success = false,
+                    Message = "User not found.",
+                    StatusCode = 404
+                };
+            }
+            else
+            {
+                Result = new APIResult()
+                {
+                    Success = true,
+                    Message = "User found.",
+                    Data = User,
+                    StatusCode = 200
+                };
+            }
+        }
+        catch (Exception Ex)
+        {
+            Logger.LogError(Ex, "Error retrieving user with ID: {UserId}", UserId);
             Result = new APIResult()
             {
                 Success = false,
-                Message = "User not found.",
-                StatusCode = 404
-            };
-        }
-        else
-        {
-            Result = new APIResult()
-            {
-                Success = true,
-                Message = "User found.",
-                Data = User,
-                StatusCode = 200
+                Message = Ex.Message,
+                StatusCode = 500
             };
         }
 
@@ -70,26 +83,40 @@ public class UserController : ControllerBase
     public async Task<APIResult> GetAll()
     {
         Logger.LogInformation("Getting all users");
-        IEnumerable<AppUser> Users = await Repo.GetAllAsync();
-
         APIResult Result = new APIResult();
-        if (User is null)
+
+        try
         {
+            IEnumerable<AppUser> Users = await Repo.GetAllAsync();
+
+            if (User is null)
+            {
+                Result = new APIResult()
+                {
+                    Success = false,
+                    Message = "No User found.",
+                    StatusCode = 404
+                };
+            }
+            else
+            {
+                Result = new APIResult()
+                {
+                    Success = true,
+                    Message = "Users found.",
+                    Data = Users,
+                    StatusCode = 200
+                };
+            }
+        }
+        catch (Exception Ex)
+        {
+            Logger.LogError(Ex, "Error retrieving all users");
             Result = new APIResult()
             {
                 Success = false,
-                Message = "No User found.",
-                StatusCode = 404
-            };
-        }
-        else
-        {
-            Result = new APIResult()
-            {
-                Success = true,
-                Message = "Users found.",
-                Data = Users,
-                StatusCode = 200
+                Message = Ex.Message,
+                StatusCode = 500
             };
         }
         return Result;
@@ -105,28 +132,41 @@ public class UserController : ControllerBase
     {
         Logger.LogInformation($"Adding user with First Name: {NewUser.FirstName}, Last Name: {NewUser.LastName}");
         APIResult Result = new APIResult();
-        
-        if (NewUser.ValidateInsert())
+
+        try
         {
-            AppUser User = await Repo.AddAsync(NewUser);
-            Result = new APIResult()
+            if (NewUser.ValidateInsert())
             {
-                Success = true,
-                Message = "User was sucessfully added.",
-                Data = User,
-                StatusCode = 200
-            };
+                AppUser User = await Repo.AddAsync(NewUser);
+                Result = new APIResult()
+                {
+                    Success = true,
+                    Message = "User was sucessfully added.",
+                    Data = User,
+                    StatusCode = 200
+                };
+            }
+            else
+            { 
+                Result = new APIResult()
+                {
+                    Success = false,
+                    Message = "User could not be added",
+                    StatusCode = 404
+                };
+            }
         }
-        else
-        { 
+        catch (Exception Ex)
+        {
+            Logger.LogError(Ex, "Error while adding user");
             Result = new APIResult()
             {
                 Success = false,
-                Message = "User could not be added",
-                StatusCode = 404
+                Message = Ex.Message,
+                StatusCode = 500
             };
         }
-       
+
         return Result;
     }
 
@@ -141,27 +181,40 @@ public class UserController : ControllerBase
         Logger.LogInformation($"Updating user with First Name: {NewUser.FirstName}, Last Name: {NewUser.LastName}");
         APIResult Result = new APIResult();
 
-        if (NewUser.ValidateUpdate())
+        try
         {
-            AppUser User = await Repo.UpdateAsync(NewUser);
-            Result = new APIResult()
+            if (NewUser.ValidateUpdate())
             {
-                Success = true,
-                Message = "Users was sucessfully updated.",
-                Data = User,
-                StatusCode = 200
-            };
+                AppUser User = await Repo.UpdateAsync(NewUser);
+                Result = new APIResult()
+                {
+                    Success = true,
+                    Message = "Users was sucessfully updated.",
+                    Data = User,
+                    StatusCode = 200
+                };
+            }
+            else
+            {
+                Result = new APIResult()
+                {
+                    Success = false,
+                    Message = "User could not be updated",
+                    StatusCode = 404
+                };
+            }
         }
-        else
+        catch (Exception Ex)
         {
+            Logger.LogError(Ex, "Error while updating user");
             Result = new APIResult()
             {
                 Success = false,
-                Message = "User could not be updated",
-                StatusCode = 404
+                Message = Ex.Message,
+                StatusCode = 500
             };
         }
-        
+
         return Result;
     }
 
@@ -174,46 +227,48 @@ public class UserController : ControllerBase
     public async Task<APIResult> DeleteUser(string UserId)
     {
         Logger.LogInformation($"Deleting user with ID: {UserId}");
-        AppUser? User = await Repo.GetByIdAsync(UserId);
         APIResult Result = new APIResult();
 
-        if (User is null)
+        try
         {
-            Logger.LogWarning($"User not found.");
+            AppUser? User = await Repo.GetByIdAsync(UserId);
+            if (User is null)
+            {
+                Logger.LogWarning($"User not found.");
+                Result = new APIResult()
+                {
+                    Success = false,
+                    Message = "User could not be found",
+                    StatusCode = 404
+                };
+            }
+            else
+            {
+                // Deactivate to not delete
+                User.IsActive = false;
+                await Repo.DeleteAsync(User);
+                Logger.LogInformation($"User with ID: {UserId} was deactivated.");
+
+                Result = new APIResult()
+                {
+                    Success = true,
+                    Message = "Users was sucessfully removed.",
+                    Data = User,
+                    StatusCode = 200
+                };
+            }
+        }
+        catch (Exception Ex)
+        {
+            Logger.LogError(Ex, "Error while deleting user");
             Result = new APIResult()
             {
                 Success = false,
-                Message = "User could not be found",
-                StatusCode = 404
-            };
-        }
-        else
-        {
-            // Deactivate to not delete
-            User.IsActive = false;
-            await Repo.DeleteAsync(User);
-            Logger.LogInformation($"User with ID: {UserId} was deactivated.");
-
-            Result = new APIResult()
-            {
-                Success = true,
-                Message = "Users was sucessfully removed.",
-                Data = User,
-                StatusCode = 200
+                Message = Ex.Message,
+                StatusCode = 500
             };
         }
 
         return Result;
-    }
-
-    /// <summary>
-    /// Throws an exception to test the error middleware.
-    /// </summary>
-    /// <param name="NewUser">A sample <see cref="AppUser"/> entity.</param>
-    /// <exception cref="Exception">Always thrown to test middleware.</exception>
-    [HttpPost("Test")]
-    public Task TestErrorMiddleware(AppUser NewUser)
-    {
-        throw new Exception("Testing middleware");
     }
 }
