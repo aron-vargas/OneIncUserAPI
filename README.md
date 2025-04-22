@@ -25,13 +25,11 @@ OneIncUserAPI is a .NET 8.0-based web API designed to manage users, roles, and t
   - **Domain**: Defines the core entities and their relationships. These entities represent the business models of the application.
     - **Models**: Contains the primary domain models:
       - `AppUser`: Represents a user in the system, including properties like `UserId`, `FirstName`, `LastName`, `Email`, and `LastLogin`.
-      - `AppRole`: Represents a role in the system, including properties like `RoleId`, `RoleName`, and `Description`.
-      - `UserRole`: Represents the association between a user and a role, linking `UserId` and `RoleId`.
     - **Common**: Provides base classes and interfaces shared across domain models, such as:
       - `EntityBase`: A base class that includes common properties like `Id`, `CreatedOn`, `CreatedBy`, `UpdateOn`, `UpdatedBy`, and `IsActive`.
       - `IEntityBase`: An interface defining the contract for all entities in the application.
   - **Persistence**: Implements the data access layer using the repository pattern.
     - `ApplicationRepository<T>`: A generic repository that provides CRUD operations for entities. It abstracts the data access logic, ensuring that the Core layer is not tightly coupled to the database implementation.
-    - `MemoryAppDB`: An in-memory database context implemented using `Entity Framework Core`. It manages the `DbSet` for entities like `AppUser`, `AppRole`, and `UserRole` and applies configurations during model creation.
+    - `MemoryAppDB`: An in-memory database context implemented using `Entity Framework Core`. It manages the `DbSet` for entities like `AppUser` and applies configurations during model creation.
 
 - **Program.cs**: Configures services, middleware, and the application pipeline. It sets up dependency injection for the Core components, including the repository and database context, and integrates Swagger for API documentation and testing.

@@ -34,7 +34,6 @@ public class ApplicationRepository<T> : IApplicationRepository<T> where T : Enti
     /// <exception cref="InvalidOperationException">Thrown if the entity fails validation.</exception>
     public async Task<T> AddAsync(T entity)
     {
-        entity.ValidateInsert();
         await DBContext.Set<T>().AddAsync(entity);
         await DBContext.SaveChangesAsync();
         return entity;

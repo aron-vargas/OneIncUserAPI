@@ -9,8 +9,8 @@ public interface IEntityBase
     public string? UpdatedBy { get; set; }
     public bool IsActive { get; set; }
 
-    public void ValidateInsert();
+    public bool ValidateInsert();
 
-    public void ValidateUpdate();
+    public bool ValidateUpdate();
 }
 

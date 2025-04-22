@@ -15,16 +15,6 @@ public class MemoryAppDB : DbContext
     public DbSet<AppUser> Users => Set<AppUser>();
 
     /// <summary>
-    /// Gets the <see cref="DbSet{TEntity}"/> for managing <see cref="AppRole"/> entities.
-    /// </summary>
-    public DbSet<AppRole> Roles => Set<AppRole>();
-
-    /// <summary>
-    /// Gets the <see cref="DbSet{TEntity}"/> for managing <see cref="UserRole"/> entities.
-    /// </summary>
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="MemoryAppDB"/> class with the specified options.
     /// </summary>
     /// <param name="options">The options to configure the database context.</param>

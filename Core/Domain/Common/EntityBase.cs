@@ -41,8 +41,10 @@ public class EntityBase : IEntityBase
     /// Validates the entity before it is inserted into the database.
     /// Sets default values for <see cref="CreatedOn"/>, <see cref="UpdateOn"/>, <see cref="CreatedBy"/>, <see cref="UpdatedBy"/>, and <see cref="IsActive"/>.
     /// </summary>
-    public void ValidateInsert()
+    public bool ValidateInsert()
     {
+        bool Valid = true;
+
         CreatedOn = DateTime.UtcNow;
         UpdateOn = DateTime.UtcNow;
         if (CreatedBy is null)
@@ -50,14 +52,18 @@ public class EntityBase : IEntityBase
         if (UpdatedBy is null)
             UpdatedBy = "System";
         IsActive = true;
+
+        return Valid;
     }
 
     /// <summary>
     /// Validates the entity before it is updated in the database.
     /// Ensures that <see cref="UpdateOn"/> and <see cref="UpdatedBy"/> are set, and sets default values for <see cref="CreatedOn"/> and <see cref="CreatedBy"/> if they are null.
     /// </summary>
-    public void ValidateUpdate()
+    public bool ValidateUpdate()
     {
+        bool Valid = true;
+
         UpdateOn = DateTime.UtcNow;
         if (UpdatedBy is null)
             UpdatedBy = "System";
@@ -65,5 +71,7 @@ public class EntityBase : IEntityBase
             CreatedOn = DateTime.UtcNow;
         if (CreatedBy is null)
             CreatedBy = "System";
+
+        return Valid;
     }
 }
