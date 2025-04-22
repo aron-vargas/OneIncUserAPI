@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OneIncUserAPI.Core.Application;
 using OneIncUserAPI.Core.Application.Interfaces;
 using OneIncUserAPI.Core.Domain.Models;
 using OneIncUserAPI.Core.Persistence;
@@ -32,11 +33,33 @@ public class UserController : ControllerBase
     /// <param name="UserId">The unique identifier of the user.</param>
     /// <returns>The <see cref="AppUser"/> entity if found; otherwise, null.</returns>
     [HttpGet("{UserId}")]
-    public async Task<AppUser?> GetOne(string UserId)
+    public async Task<APIResult> GetOne(string UserId)
     {
         Logger.LogInformation($"Getting user with ID: {UserId}");
         AppUser? User = await Repo.GetByIdAsync(UserId);
-        return User;
+
+        APIResult Result = new APIResult();
+        if (User is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "User not found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "User found.",
+                Data = User,
+                StatusCode = 200
+            };
+        }
+
+        return Result;
     }
 
     /// <summary>
@@ -44,11 +67,32 @@ public class UserController : ControllerBase
     /// </summary>
     /// <returns>A collection of <see cref="AppUser"/> entities.</returns>
     [HttpGet("all")]
-    public async Task<IEnumerable<AppUser>> GetAll()
+    public async Task<APIResult> GetAll()
     {
         Logger.LogInformation("Getting all users");
         IEnumerable<AppUser> Users = await Repo.GetAllAsync();
-        return Users;
+
+        APIResult Result = new APIResult();
+        if (User is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "No User found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Users found.",
+                Data = Users,
+                StatusCode = 200
+            };
+        }
+        return Result;
     }
 
     /// <summary>
@@ -57,12 +101,34 @@ public class UserController : ControllerBase
     /// <param name="NewUser">The <see cref="AppUser"/> entity to add.</param>
     /// <returns>The added <see cref="AppUser"/> entity.</returns>
     [HttpPost("add")]
-    public async Task<AppUser> AddUser(AppUser NewUser)
+    public async Task<APIResult> AddUser(AppUser NewUser)
     {
         Logger.LogInformation($"Adding user with First Name: {NewUser.FirstName}, Last Name: {NewUser.LastName}");
-        NewUser.UserId = new Guid().ToString();
+        Guid nGuid = Guid.NewGuid();
+        NewUser.UserId = nGuid.ToString();
         AppUser User = await Repo.AddAsync(NewUser);
-        return User;
+
+        APIResult Result = new APIResult();
+        if (User is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "User could not be added",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "User was sucessfully added.",
+                Data = User,
+                StatusCode = 200
+            };
+        }
+        return Result;
     }
 
     /// <summary>
@@ -71,11 +137,32 @@ public class UserController : ControllerBase
     /// <param name="NewUser">The <see cref="AppUser"/> entity with updated information.</param>
     /// <returns>The updated <see cref="AppUser"/> entity.</returns>
     [HttpPost("update")]
-    public async Task<AppUser> UpdateUser(AppUser NewUser)
+    public async Task<APIResult> UpdateUser(AppUser NewUser)
     {
         Logger.LogInformation($"Updating user with First Name: {NewUser.FirstName}, Last Name: {NewUser.LastName}");
         AppUser User = await Repo.AddAsync(NewUser);
-        return User;
+
+        APIResult Result = new APIResult();
+        if (User is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "User could not be updated",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Users was sucessfully updated.",
+                Data = User,
+                StatusCode = 200
+            };
+        }
+        return Result;
     }
 
     /// <summary>
@@ -84,21 +171,39 @@ public class UserController : ControllerBase
     /// <param name="UserId">The unique identifier of the user to deactivate.</param>
     /// <returns>The deactivated <see cref="AppUser"/> entity if found; otherwise, null.</returns>
     [HttpDelete("{UserId}")]
-    public async Task<AppUser?> DeleteUser(string UserId)
+    public async Task<APIResult> DeleteUser(string UserId)
     {
         Logger.LogInformation($"Deleting user with ID: {UserId}");
         AppUser? User = await Repo.GetByIdAsync(UserId);
-        if (User is not null)
+
+        APIResult Result = new APIResult();
+        if (User is null)
+        {
+            Logger.LogWarning($"User not found.");
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "User could not be found",
+                StatusCode = 404
+            };
+        }
+        else
         {
             // Deactivate to not delete
             User.IsActive = false;
             await Repo.UpdateAsync(User);
+            Logger.LogInformation($"User with ID: {UserId} was deactivated.");
+
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Users was sucessfully removed.",
+                Data = User,
+                StatusCode = 200
+            };
         }
-        else
-        {
-            Logger.LogWarning($"User not found.");
-        }
-        return User;
+
+        return Result;
     }
 
     /// <summary>

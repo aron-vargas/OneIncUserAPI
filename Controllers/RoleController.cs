@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OneIncUserAPI.Core.Domain.Models;
 using OneIncUserAPI.Core.Application.Interfaces;
+using OneIncUserAPI.Core.Application;
+using System.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace OneIncUserAPI.Controllers;
 
@@ -32,11 +35,33 @@ public class RoleController : ControllerBase
     /// <param name="RoleId">The unique identifier of the role.</param>
     /// <returns>The <see cref="AppRole"/> entity if found; otherwise, null.</returns>
     [HttpGet("{RoleId}")]
-    public async Task<AppRole?> GetOne(string RoleId)
+    public async Task<APIResult> GetOne(string RoleId)
     {
         Logger.LogInformation($"Getting role with ID: {RoleId}");
         AppRole? Role = await Repo.GetByIdAsync(RoleId);
-        return Role;
+
+        APIResult Result = new APIResult();
+        if (Role is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "Role not found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Role found.",
+                Data = Role,
+                StatusCode = 200
+            };
+        }
+
+        return Result;
     }
 
     /// <summary>
@@ -44,11 +69,32 @@ public class RoleController : ControllerBase
     /// </summary>
     /// <returns>A collection of <see cref="AppRole"/> entities.</returns>
     [HttpGet("all")]
-    public async Task<IEnumerable<AppRole>> GetAll()
+    public async Task<APIResult> GetAll()
     {
         Logger.LogInformation("Getting all Roles");
         IEnumerable<AppRole> Roles = await Repo.GetAllAsync();
-        return Roles;
+
+        APIResult Result = new APIResult();
+        if (Roles is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "No Role found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Roles found.",
+                Data = Roles,
+                StatusCode = 200
+            };
+        }
+        return Result;
     }
 
     /// <summary>
@@ -57,12 +103,34 @@ public class RoleController : ControllerBase
     /// <param name="NewRole">The <see cref="AppRole"/> entity to add.</param>
     /// <returns>The added <see cref="AppRole"/> entity.</returns>
     [HttpPost("add")]
-    public async Task<AppRole> AddRole(AppRole NewRole)
+    public async Task<APIResult> AddRole(AppRole NewRole)
     {
         Logger.LogInformation($"Adding Role with Name: {NewRole.RoleName}, Description: {NewRole.Description}");
-        NewRole.RoleId = new Guid().ToString();
+        Guid nGuid = Guid.NewGuid();
+        NewRole.RoleId = nGuid.ToString();
         AppRole Role = await Repo.AddAsync(NewRole);
-        return Role;
+
+        APIResult Result = new APIResult();
+        if (Role is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "Role could not be added",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Role was sucessfully added.",
+                Data = Role,
+                StatusCode = 200
+            };
+        }
+        return Result;
     }
 
     /// <summary>
@@ -71,14 +139,37 @@ public class RoleController : ControllerBase
     /// <param name="RoleId">The unique identifier of the role to delete.</param>
     /// <returns>The deleted <see cref="AppRole"/> entity if found; otherwise, null.</returns>
     [HttpDelete("{RoleId}")]
-    public async Task<AppRole?> DeleteRole(string RoleId)
+    public async Task<APIResult> DeleteRole(string RoleId)
     {
         Logger.LogInformation($"Deleting role with ID: {RoleId}");
         AppRole? Role = await Repo.GetByIdAsync(RoleId);
 
-        if (Role is not null)
+        APIResult Result = new APIResult();
+        if (Role is null)
+        {
+            Logger.LogWarning($"Role not found.");
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "Role could not be found",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            // Delete the role
             await Repo.DeleteAsync(Role);
+            Logger.LogInformation($"Role with ID: {RoleId} was deactivated.");
 
-        return Role;
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "Role was sucessfully removed.",
+                Data = Role,
+                StatusCode = 200
+            };
+        }
+
+        return Result;
     }
 }

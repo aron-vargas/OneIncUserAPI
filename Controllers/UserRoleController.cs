@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OneIncUserAPI.Core.Application.Interfaces;
+using OneIncUserAPI.Core.Application;
 using OneIncUserAPI.Core.Domain.Models;
 using OneIncUserAPI.Core.Persistence;
+using System.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace OneIncUserAPI.Controllers;
 
@@ -33,11 +36,33 @@ public class UserRoleController : ControllerBase
     /// <param name="Entity">The <see cref="UserRole"/> entity to add.</param>
     /// <returns>The added <see cref="UserRole"/> entity.</returns>
     [HttpPost("add")]
-    public async Task<UserRole> AddUserRole(UserRole Entity)
+    public async Task<APIResult> AddUserRole(UserRole Entity)
     {
         Logger.LogInformation($"Adding User Role with UserId: {Entity.UserId}, RoleId: {Entity.RoleId}");
         await Repo.AddAsync(Entity);
-        return Entity;
+
+        APIResult Result = new APIResult();
+        if (Entity is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "UserRole not found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "UserRole found.",
+                Data = Entity,
+                StatusCode = 200
+            };
+        }
+
+        return Result;
     }
 
     /// <summary>
@@ -46,11 +71,20 @@ public class UserRoleController : ControllerBase
     /// <param name="Entity">The <see cref="UserRole"/> entity to remove.</param>
     /// <returns>The removed <see cref="UserRole"/> entity.</returns>
     [HttpDelete("remove")]
-    public async Task<UserRole> RemoveUserRole(UserRole Entity)
+    public async Task<APIResult> RemoveUserRole(UserRole Entity)
     {
         Logger.LogInformation($"Removing User Role with UserId: {Entity.UserId}, RoleId: {Entity.RoleId}");
         await Repo.DeleteAsync(Entity);
-        return Entity;
+
+        APIResult Result = new APIResult()
+        {
+            Success = true,
+            Message = "UserRole was sucessfully removed.",
+            Data = Entity,
+            StatusCode = 200
+        };
+
+        return Result;
     }
 
     /// <summary>
@@ -59,11 +93,32 @@ public class UserRoleController : ControllerBase
     /// <param name="UserId">The ID of the user.</param>
     /// <returns>A collection of <see cref="UserRole"/> entities associated with the user.</returns>
     [HttpGet("allroles/{UserId}")]
-    public Task<IEnumerable<UserRole>> GetAllRoles(string UserId)
+    public Task<APIResult> GetAllRoles(string UserId)
     {
         Logger.LogInformation($"Getting all UserRoles with UserId {UserId}");
         IEnumerable<UserRole> Entities = Repo.Entities.Where(e => e.UserId == UserId);
-        return Task.FromResult(Entities);
+
+        APIResult Result = new APIResult();
+        if (Entities is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "No UserRole found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "UserRoles found.",
+                Data = Entities,
+                StatusCode = 200
+            };
+        }
+        return Task.FromResult(Result);
     }
 
     /// <summary>
@@ -72,10 +127,31 @@ public class UserRoleController : ControllerBase
     /// <param name="RoleId">The ID of the role.</param>
     /// <returns>A collection of <see cref="UserRole"/> entities associated with the role.</returns>
     [HttpGet("allusers/{RoleId}")]
-    public Task<IEnumerable<UserRole>> GetAllUsers(string RoleId)
+    public Task<APIResult> GetAllUsers(string RoleId)
     {
         Logger.LogInformation($"Getting all UserRoles with RoleId: {RoleId}");
         IEnumerable<UserRole> Entities = Repo.Entities.Where(e => e.RoleId == RoleId);
-        return Task.FromResult(Entities);
+
+        APIResult Result = new APIResult();
+        if (Entities is null)
+        {
+            Result = new APIResult()
+            {
+                Success = false,
+                Message = "No UserRole found.",
+                StatusCode = 404
+            };
+        }
+        else
+        {
+            Result = new APIResult()
+            {
+                Success = true,
+                Message = "UserRoles found.",
+                Data = Entities,
+                StatusCode = 200
+            };
+        }
+        return Task.FromResult(Result);
     }
 }
